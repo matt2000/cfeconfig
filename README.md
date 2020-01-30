@@ -36,7 +36,7 @@ will do, if you prefer to use alternate argument parsing.
 3. Throughout the application, use `config.get()` to get a dict of
 configuration values or `config.get('option_name')` to get a specific option value.
 
-
+```python
     """Usage: myapp.py [--foo] [--bar]"""
     from cfeconfig import config
     from docopt import docopt
@@ -47,6 +47,7 @@ configuration values or `config.get('option_name')` to get a specific option val
     config.load(opts, 'myapp', 'config.yml')  # Push opts to Environment.
     CONFIG = config.get()
     myfunction(CONFIG)
+```
 
 
 See DocTests in module functions for examples.
@@ -54,6 +55,7 @@ See DocTests in module functions for examples.
 
 ## Theoretical Example usage with `click`
 
+```python
     import os
 
     from click import click
@@ -72,6 +74,6 @@ See DocTests in module functions for examples.
 
     if __name__ == '__main__':
         cli()
-
+```
 
 [1] More precisely, at the time config.load() was called.
