@@ -36,6 +36,7 @@ will do, if you prefer to use alternate argument parsing.
 3. Throughout the application, use `config.get()` to get a dict of
    configuration values or `config.get('option_name')` to get a specific option value.
 
+
     """Usage: myapp.py [--foo] [--bar]"""
     from cfeconfig import config
     from docopt import docopt
@@ -53,7 +54,6 @@ See DocTests in module functions for examples.
 
 ## Theoretical Example usage with `click`
 
-    ````
     import os
 
     from click import click
