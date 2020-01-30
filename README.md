@@ -32,9 +32,9 @@ will do, if you prefer to use alternate argument parsing.
 
 1. Read command-line args first, e.g., `opts = docopt.docopt(__doc__)`
 2. Read and store environment variables, with
-   `config.load(opts, 'some_env_var_prefix')`.
+`config.load(opts, 'some_env_var_prefix')`.
 3. Throughout the application, use `config.get()` to get a dict of
-   configuration values or `config.get('option_name')` to get a specific option value.
+configuration values or `config.get('option_name')` to get a specific option value.
 
 
     """Usage: myapp.py [--foo] [--bar]"""
