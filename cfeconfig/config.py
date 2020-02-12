@@ -82,9 +82,10 @@ def load(opts: Dict[str, str], prefix: str, fname=None) -> ConfigStore:
     """
     global immutable_config_values
     if immutable_config_values is not None:
-        raise Exception("load() function should only be called once.")
+        conf: ConfigStore = get()  # type: ignore
+        return conf
     conf = {k.upper(): v for k, v in parse_config_file(fname).items()} if fname else {}
-    str_conf = {k: v for k, v in conf.items() if type(v) is str}
+    str_conf: Dict[str, str] = {k: v for k, v in conf.items() if type(v) is str}  # type: ignore
     str_conf.update(opts)
     opts2env(str_conf, prefix)
     conf.update(load_from_env(prefix))
