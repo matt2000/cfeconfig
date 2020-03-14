@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "cfeconfig"
-version = "0.2.0"
+version = "0.3.0"
 description = "Manage app configuration with CLI options, Config File, or Env."
 authors = ["Matt Chapman <Matt@NinjitsuWeb.com>"]
+homepage = "https://github.com/matt2000/cfeconfig"
+repository = "https://github.com/matt2000/cfeconfig"
+
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
