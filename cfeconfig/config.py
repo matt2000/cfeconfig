@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import importlib
+import logging
 import os
 from typing import Any, Dict, Optional, Tuple, Union  # noqa
 import urllib.parse
@@ -64,12 +65,12 @@ def load_from_env(prefix: str) -> ConfigStore:
 def load(opts: Dict[str, str], prefix: str, fname=None) -> ConfigStore:
     """
     CLI options overrule Config File Options which overrule Env vars.
-    
+
     Prefix is not case-sensitive. We support the conventions that
     Enviroment Variables are typically UPPER_CASE and CLI arguments
     are typically --lower-case.
-    
-    >>> o = {} 
+
+    >>> o = {}
     >>> o['--foo'] = '0'
     >>> o['--bar'] = 'hello'
     >>> conf = load(o, 'CteSt')
@@ -100,7 +101,10 @@ def parse_config_file(fname: str) -> Dict[str, Any]:
 
 def get(key=None, default=None) -> Union[ConfigStore, ConfigValue]:
     if immutable_config_values is None:
-        raise Exception("Config not yet loaded. Call load() instead.")
+        logging.warning(
+            "Config not yet loaded. Calling load() with arbitrary defaults. You probably want to call config.load() in your main module."
+        )
+        load({}, prefix="CFE", fname="config.yml")
     if key:
         val = immutable_config_values.get(key.upper(), default)
         return val.copy() if hasattr(val, "copy") else val  # type: ignore
