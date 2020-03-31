@@ -2,7 +2,7 @@ from collections import OrderedDict
 import importlib
 import logging
 import os
-from typing import Any, Dict, Optional, Tuple, Union  # noqa
+from typing import Any, Dict, Optional, Set, Tuple, Union  # noqa
 import urllib.parse
 
 import yaml
@@ -10,7 +10,8 @@ import yaml
 ConfigValue = Union[str, bool, Dict[str, Any]]
 ConfigStore = Dict[str, ConfigValue]
 
-immutable_config_values = None  # type: Optional[ConfigStore]
+immutable_config_values: Optional[ConfigStore] = None
+seen_prefixes: Set[str] = set()
 
 
 def opts2env(opts: Dict[str, str], prefix: str) -> None:
@@ -80,9 +81,19 @@ def load(opts: Dict[str, str], prefix: str, fname=None) -> ConfigStore:
     'hello'
     >>> os.environ['CTEST_BAR']
     'hello'
+    >>> os.environ['MORE_STUFF'] = '4'
+    >>> conf = load({'baz': 3, 'foo': 1}, 'MORE')
+    >>> conf['BAZ']
+    '3'
+    >>> conf['FOO']
+    '1'
+    >>> conf['STUFF']
+    '4'
+    >>> conf['BAR'] # Should be unchanged.
+    'hello'
     """
     global immutable_config_values
-    if immutable_config_values is not None:
+    if immutable_config_values is not None and prefix in seen_prefixes:
         conf: ConfigStore = get()  # type: ignore
         return conf
     conf = {k.upper(): v for k, v in parse_config_file(fname).items()} if fname else {}
@@ -90,8 +101,18 @@ def load(opts: Dict[str, str], prefix: str, fname=None) -> ConfigStore:
     str_conf.update(opts)
     opts2env(str_conf, prefix)
     conf.update(load_from_env(prefix))
-    immutable_config_values = OrderedDict(conf)
-    return conf
+    # @TODO I don't remember why we used an Ordered dict here. It could
+    # probably just be a frozenset of tuples that we cast as a dict when needed?
+    # However, ordering might be useful for conflict resolution. (See below.)
+    if immutable_config_values is None:
+        immutable_config_values = OrderedDict(conf)
+    else:
+        # @TODO We should probably namespace by prefix to avoid collisions.
+        # The namespace could be optional for convenience, and we could use
+        # (?reverse-)insertion order to resolve conflicts.
+        immutable_config_values.update(conf)
+    seen_prefixes.add(prefix)
+    return immutable_config_values
 
 
 def parse_config_file(fname: str) -> Dict[str, Any]:
@@ -104,7 +125,7 @@ def get(key=None, default=None) -> Union[ConfigStore, ConfigValue]:
         logging.warning(
             "Config not yet loaded. Calling load() with arbitrary defaults. You probably want to call config.load() in your main module."
         )
-        load({}, prefix="CFE", fname="config.yml")
+        immutable_config_values = load({}, prefix="CFE", fname="config.yml")
     if key:
         val = immutable_config_values.get(key.upper(), default)
         return val.copy() if hasattr(val, "copy") else val  # type: ignore
