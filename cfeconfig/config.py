@@ -121,6 +121,7 @@ def parse_config_file(fname: str) -> Dict[str, Any]:
 
 
 def get(key=None, default=None) -> Union[ConfigStore, ConfigValue]:
+    global immutable_config_values
     if immutable_config_values is None:
         logging.warning(
             "Config not yet loaded. Calling load() with arbitrary defaults. You probably want to call config.load() in your main module."
