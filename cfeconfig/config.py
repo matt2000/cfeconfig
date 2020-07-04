@@ -93,10 +93,11 @@ def load(opts: Dict[str, str], prefix: str, fname=None) -> ConfigStore:
     'hello'
     """
     global immutable_config_values
+    conf: ConfigStore = {}
     if immutable_config_values is not None and prefix in seen_prefixes:
-        conf: ConfigStore = get()  # type: ignore
-        return conf
-    conf = {k.upper(): v for k, v in parse_config_file(fname).items()} if fname else {}
+        conf = get()  # type: ignore
+
+    conf.update({k.upper(): v for k, v in parse_config_file(fname).items()} if fname else {})
     str_conf: Dict[str, str] = {k: v for k, v in conf.items() if type(v) is str}  # type: ignore
     str_conf.update(opts)
     opts2env(str_conf, prefix)
